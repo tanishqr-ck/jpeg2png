@@ -2,7 +2,8 @@ const express=require('express');
 const bp=require('body-parser');
 const multer=require('multer');
 const app=express();
-
+const jimp= require('jimp');
+const fs = require('fs');
 app.use(bp.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
@@ -17,7 +18,7 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix+file.originalname)
+    cb(null,"input-"+uniqueSuffix+file.originalname)
   }
 })
 
@@ -32,8 +33,20 @@ app.post("/",(req,res)=>{
       throw err;
     }
 var inputfile=req.file.path;
-
+console.log(inputfile);
+jimp.read(inputfile, function (err, image) {
+  if (err) {
+    console.log(err)
+  }
+  else {
+    var temp=req.file.path;
+    var crux=temp.substring(0,temp.lastIndexOf('.'))+"-output.png"
+    image.write("output.png")
+  }
+  res.download("output.png");
+});
    });
+
 
 
 });
